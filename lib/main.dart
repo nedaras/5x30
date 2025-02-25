@@ -13,24 +13,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+        scaffoldBackgroundColor: Colors.black,
+        // todo: add like a theme idk
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const Scaffold(
+        body: Folders(),
+      ),
     );
   }
 }
@@ -119,4 +108,48 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class Folders extends StatelessWidget {
+  const Folders({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 10,
+      itemBuilder: (ctx, i) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: const Folder(),
+        );
+      },
+    );
+  }
+
+}
+
+class Folder extends StatelessWidget {
+  const Folder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 48.0,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: const Text(
+        "Lemongym",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
 }
