@@ -115,21 +115,20 @@ class Folders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (ctx, i) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: const Folder(),
-        );
-      },
+    return const Column(
+      children: [
+        Folder(title: "Gym+"),
+        Folder(title: "Lemongym"),
+      ],
     );
   }
 
 }
 
 class Folder extends StatelessWidget {
-  const Folder({super.key});
+  const Folder({super.key, required this.title});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +141,8 @@ class Folder extends StatelessWidget {
         color: Color(0xFF1C1C1E),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: const Text(
-        "Lemongym",
+      child: Text(
+        title,
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
