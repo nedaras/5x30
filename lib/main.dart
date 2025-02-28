@@ -1,13 +1,57 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  databaseFactory = kIsWeb ? databaseFactoryFfiWeb : databaseFactoryFfi;
+
+  final sql = await openDatabase(
+    join(await getDatabasesPath(), '.db'),
+    onCreate: (db, version) async {
+      await db.execute(
+        '''CREATE TABLE Folder (
+          ID   INTEGER AUTO_INCREMENT PRIMARY KEY,
+          Name VARCHAR(64) NOT NULL
+        );''',
+      );
+
+      await db.execute(
+        '''CREATE TABLE Tag (
+          ID   INT AUTO_INCREMENT PRIMARY KEY,
+          Name VARCHAR(32) NOT NULL UNIQUE
+        );''',
+      );
+
+      await db.execute(
+        '''CREATE TABLE FolderTag (
+          FolderID INTEGER,
+          TagID    INTEGER,
+          PRIMARY KEY (FolderID, TagID),
+          FOREIGN KEY (FolderID) REFERENCES Folder(ID) ON DELETE CASCADE,
+          FOREIGN KEY (TagId) REFERENCES Tag(ID) ON DELETE CASCADE
+        );'''
+      );
+    },
+    version: 1,
+  );
+
+  final List<Map<String, dynamic>> result = await sql.query('Folder');
+  List<String> folders = result.map((folder) => folder['Name'] as String).toList();
+
+  runApp(MyApp(
+    folders: folders,
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
 
-  final List<String> _folders = [];
+class MyApp extends StatelessWidget {
+  const MyApp({super.key, required this.folders});
+
+  final List<String> folders;
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +72,28 @@ class MyApp extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20.0),
                       child: Search(
-                        onChanged:
-                            (value) => setState(() => _folders.add(value)),
+                        //onChanged:
+                            //(value) => setState(() => folders.add(value)),
                       ),
                     ),
-                    Folders(_folders),
+                    Folders(folders),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final sql = await openDatabase(
+                          join(await getDatabasesPath(), '.db'),
+                        );
+
+                        await sql.insert(
+                          'Folder',
+                          {
+                            'Name': 'Lemongym',
+                          },
+                        );
+
+                        setState(() => folders.add('Lemongym'));
+                      },
+                      child: Text('Add "Lemongym" folder'),
+                    ),
                   ],
                 ),
           ),
