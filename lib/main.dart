@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
-  // This widget is the root of your application.
+  final List<String> _folders = [];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,11 +17,25 @@ class MyApp extends StatelessWidget {
         // todo: add like a theme idk
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const Scaffold(
+      home: Scaffold(
         backgroundColor: Colors.black,
         body: Padding(
           padding: EdgeInsets.all(12.0),
-          child: Column(children: [Search(), Folders()]),
+          child: StatefulBuilder(
+            builder:
+                (ctx, setState) => Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: Search(
+                        onChanged:
+                            (value) => setState(() => _folders.add(value)),
+                      ),
+                    ),
+                    Folders(_folders),
+                  ],
+                ),
+          ),
         ),
       ),
     );
@@ -56,28 +71,31 @@ class Search extends StatelessWidget {
 }
 
 class Folders extends StatelessWidget {
-  const Folders({super.key});
+  const Folders(this._folders, {super.key});
+
+  final List<String> _folders;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Folder(
-          title: 'Gym+',
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12.0),
-            topRight: Radius.circular(12.0),
-          ),
-        ),
-        Folder(title: 'Gymfitness'),
-        Folder(
-          title: 'Lemongym',
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(12.0),
-            bottomRight: Radius.circular(12.0),
-          ),
-        ),
-      ],
+    return Expanded(
+      child: ListView.builder(
+        itemCount: _folders.length,
+        itemBuilder: (ctx, i) {
+          double top = 0.0;
+          double bottom = 0.0;
+
+          if (i == 0) top = 12.0;
+          if (i == _folders.length - 1) bottom = 12.0;
+
+          return Folder(
+            title: _folders[i],
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(top),
+              bottom: Radius.circular(bottom),
+            ),
+          );
+        },
+      ),
     );
   }
 }
