@@ -21,10 +21,15 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: '5x30',
       theme: ThemeData(
-        // todo: add like a theme idk
-        colorScheme: ColorScheme.dark(),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFFE3B00B),
+          surfaceContainer: Color(0xFF1A1A1E),
+        ),
       ),
-      home: const Scaffold(resizeToAvoidBottomInset: false, body: Home()),
+      home: const Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Home(),
+      ),
     );
   }
 }
@@ -60,26 +65,36 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // todo: manipulate scroll bar so it would not enter the blured things area
         Scrollbar(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    // 64 chars is max for folder name
-                    child: Search(
-                      onChanged:
-                          //(value) => setState(() => _input = value),
-                          (value) => setState(() => _folders.add(value)),
-                    ),
+          // todo: offset scroll indicator widget by footers height
+          child: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    top: 16.0,
+                    left: 16.0,
+                    right: 16.0,
+                    bottom: 16.0 + 60.0,
                   ),
-                  Folders(_folders),
-                ],
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        // 64 chars is max for folder name
+                        child: Search(
+                          //onChanged: (value) => setState(() => _input = value),
+                          onChanged:
+                              (value) => setState(() => _folders.add(value)),
+                        ),
+                      ),
+                      Folders(_folders),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
         Align(
@@ -87,10 +102,30 @@ class _HomeState extends State<Home> {
           child: ClipRect(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: SizedBox(
+              child: Container(
                 width: double.infinity,
-                height: 60.0,
-                child: Text("Sigma $_input"),
+                height: 48.0,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Icon(
+                        Icons.folder_copy,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 28.0,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Icon(
+                        Icons.edit_document,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 28.0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -111,7 +146,7 @@ class Search extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Color(0xFF1A1A1E),
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: TextField(
@@ -172,7 +207,7 @@ class Folder extends StatelessWidget {
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Color(0xFF1A1A1E),
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: borderRadius,
       ),
       child: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
