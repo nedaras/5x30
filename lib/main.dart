@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
@@ -22,15 +20,14 @@ class App extends StatelessWidget {
       title: '5x30',
       theme: ThemeData(
         colorScheme: const ColorScheme.dark(
+          surface: Colors.black,
+          onSurface: Colors.white,
+          onSurfaceVariant: Color(0xFF9898A0),
           primary: Color(0xFFE3B00B),
           surfaceContainer: Color(0xFF1A1A1E),
         ),
       ),
-      home: const Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Home(),
-        bottomNavigationBar: Footer(),
-      ),
+      home: const Scaffold(resizeToAvoidBottomInset: true, body: Home()),
     );
   }
 }
@@ -62,80 +59,86 @@ class _HomeState extends State<Home> {
   List<String> _folders = [];
   String _input = "";
 
+  bool _showAddFolder = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      child: CustomScrollView(
-        clipBehavior: Clip.none,
-        slivers: [
-          SliverFillRemaining(
-            hasScrollBody: false,
+    return Stack(
+      children: [
+        Column(
+          children: [
+            Expanded(child: Container(color: Colors.red)),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.folder_copy),
+                    onPressed: () => setState(() => _showAddFolder = true),
+                    iconSize: 28.0,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit_document),
+                    onPressed: () => {},
+                    iconSize: 28.0,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        
+        if (_showAddFolder)
+        Align(
+          alignment: Alignment.bottomCenter, 
+          child: Expanded(
             child: Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
+              color: Theme.of(context).colorScheme.surface,
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    // 64 chars is max for folder name
-                    child: Search(
-                      //onChanged: (value) => setState(() => _input = value),
-                      onChanged: (value) => setState(() => _folders.add(value)),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                        ),
+                        onPressed: () => setState(() => _showAddFolder = false),
+                      ),
+                      const Text("New Folder"),
+                      TextButton(
+                        child: Text(
+                          "Done",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold, 
+                          ),
+                        ),
+                        onPressed: () => {},
+                      ),
+                    ],
                   ),
-                  Folders(_folders),
+
+                  const Input(hintText: "New Folder"),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class Footer extends StatelessWidget {
-  const Footer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      elevation: 0.0,
-      color: Colors.transparent,
-      padding: EdgeInsets.all(0.0),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    Icons.folder_copy,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 28.0,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Icon(
-                    Icons.edit_document,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 28.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
-      ),
+      ],
     );
   }
 }
 
-class Search extends StatelessWidget {
-  const Search({super.key, this.onChanged, this.controller});
+class Input extends StatelessWidget {
+  const Input({super.key, this.hintText, this.onChanged, this.controller});
+
+  final String? hintText;
 
   final Function(String)? onChanged;
   final TextEditingController? controller;
@@ -150,66 +153,12 @@ class Search extends StatelessWidget {
       ),
       child: TextField(
         decoration: InputDecoration(
-          hintText: "Search",
-          hintStyle: TextStyle(color: Color(0xFF9898A0)),
-          //border: InputBorder.none,
+          hintText: hintText,
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         controller: controller,
         onChanged: onChanged,
       ),
-    );
-  }
-}
-
-class Folders extends StatelessWidget {
-  const Folders(this._folders, {super.key});
-
-  final List<String> _folders;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(_folders.length, (i) {
-        double top = 0.0;
-        double bottom = 0.0;
-
-        if (i == 0) top = 12.0;
-        if (i == _folders.length - 1) bottom = 12.0;
-
-        return Folder(
-          title: _folders[i],
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(top),
-            bottom: Radius.circular(bottom),
-          ),
-        );
-      }),
-    );
-  }
-}
-
-class Folder extends StatelessWidget {
-  const Folder({
-    super.key,
-    required this.title,
-    this.borderRadius = BorderRadius.zero,
-  });
-
-  final String title;
-  final BorderRadius borderRadius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 48.0,
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: borderRadius,
-      ),
-      child: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
     );
   }
 }
